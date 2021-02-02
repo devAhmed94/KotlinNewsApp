@@ -17,20 +17,16 @@ import retrofit2.Response
  * 01/02/2021
  */
 class NewsViewModel(
-    val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository
 ) : ViewModel() {
 
     val breakingNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     val searchNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     var pageBreaking = 1
-    var breakingResponse: NewsResponse? = null
     var pageSearching = 1
-    var searchResponse: NewsResponse? = null
-
 
     init {
         getBreakingNews("us")
-
     }
 
     fun getBreakingNews(country: String) {
@@ -54,17 +50,8 @@ class NewsViewModel(
 
     private fun handleResponseBreaking(response: Response<NewsResponse>): Resource<NewsResponse> {
         if (response.isSuccessful) {
-            response.body()?.let { resultResponse ->
-                pageBreaking++
-                if (breakingResponse == null) {
-                    breakingResponse = resultResponse
-                } else {
-                    val oldArticle = breakingResponse?.articles
-                    val newArticle = resultResponse.articles
-                    oldArticle?.addAll(newArticle)
-                }
-                return Resource.Success(breakingResponse?:resultResponse)
-
+            response.body()?.let {
+                return Resource.Success(it)
             }
         }
         return Resource.Error(null, response.message())
