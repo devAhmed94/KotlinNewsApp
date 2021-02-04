@@ -23,7 +23,9 @@ class NewsViewModel(
     val breakingNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     val searchNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
     var pageBreaking = 1
+    var breakingResponse: NewsResponse? = null
     var pageSearching = 1
+    var searchingResponse: NewsResponse? = null
 
     init {
         getBreakingNews("us")
@@ -32,7 +34,7 @@ class NewsViewModel(
     fun getBreakingNews(country: String) {
         viewModelScope.launch {
             breakingNews.postValue(Resource.Loading())
-            var response = newsRepository.getBreakNews(country, pageBreaking)
+            val response = newsRepository.getBreakNews(country, pageBreaking)
             breakingNews.postValue(handleResponseBreaking(response))
 
         }
@@ -42,7 +44,7 @@ class NewsViewModel(
     fun getSearchNews(searchQuery: String) {
         viewModelScope.launch {
             searchNews.postValue(Resource.Loading())
-            var response = newsRepository.getSearchNews(searchQuery, pageSearching)
+            val response = newsRepository.getSearchNews(searchQuery, pageSearching)
             searchNews.postValue(handleResponseSearching(response))
 
         }
@@ -51,7 +53,16 @@ class NewsViewModel(
     private fun handleResponseBreaking(response: Response<NewsResponse>): Resource<NewsResponse> {
         if (response.isSuccessful) {
             response.body()?.let {
-                return Resource.Success(it)
+                pageBreaking++
+                if (breakingResponse == null) {
+                    breakingResponse = it
+                } else {
+                    val oldRes = breakingResponse?.articles
+                    val newRes = it.articles
+                    oldRes?.addAll(newRes)
+                }
+
+                return Resource.Success(breakingResponse ?: it)
             }
         }
         return Resource.Error(null, response.message())
@@ -59,8 +70,18 @@ class NewsViewModel(
 
     private fun handleResponseSearching(response: Response<NewsResponse>): Resource<NewsResponse> {
         if (response.isSuccessful) {
+
             response.body()?.let {
-                return Resource.Success(it)
+                pageSearching++
+                if (searchingResponse == null) {
+                    searchingResponse = it
+                } else {
+                    val oldRes = searchingResponse?.articles
+                    val newRes = it.articles
+                    oldRes?.addAll(newRes)
+
+                }
+                return Resource.Success(searchingResponse ?: it)
             }
         }
         return Resource.Error(null, response.message())
