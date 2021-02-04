@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -106,6 +107,7 @@ class BreakingNewsFragment : Fragment() {
                 is Resource.Error -> {
                     hiddenProgressBar()
                     response.message.let {
+                        Toast.makeText(activity,it,Toast.LENGTH_LONG).show()
                         Log.d("TAG", "onViewCreated: $it")
                     }
                 }

@@ -8,6 +8,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.newsapp.R
+import com.example.newsapp.core.BaseApplication
 import com.example.newsapp.databinding.ActivityNewsBinding
 import com.example.newsapp.db.ArticleDataBase
 import com.example.newsapp.repository.NewsRepository
@@ -24,7 +25,7 @@ class NewsActivity : AppCompatActivity() {
         binding = ActivityNewsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel =
-            ViewModelProvider(this, NewsViewModelFactory(NewsRepository(ArticleDataBase(this))))
+            ViewModelProvider(this, NewsViewModelFactory(application,NewsRepository(ArticleDataBase(this))))
                 .get(NewsViewModel::class.java)
 
         var hostFragment =
